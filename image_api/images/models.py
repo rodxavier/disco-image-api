@@ -5,6 +5,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse_lazy
 from django.utils import timezone
 
 
@@ -64,7 +65,10 @@ class ImageUrl(models.Model):
         return timezone.now() > (self.created_at + timedelta(seconds=self.expire))
 
     def generate_url(self, request=None):
-        return ""
+        url = reverse_lazy("image-url-view", args=[self.id])
+        if request:
+            url = request.build_absolute_uri(url)
+        return url
 
     def apply_preset(self):
         pass

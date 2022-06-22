@@ -6,13 +6,14 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from images.views import UploadedImageViewSet
+from images.views import ImageUrlView, UploadedImageViewSet
 
 
 router = routers.DefaultRouter()
 router.register(r"images", UploadedImageViewSet, basename="images")
 
 urlpatterns = [
+    path("image/<pk>/", ImageUrlView.as_view(), name="image-url-view"),
     path("", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("admin/", admin.site.urls),
