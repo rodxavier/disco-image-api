@@ -7,5 +7,9 @@ UserAdmin.list_display += ("plan",)
 UserAdmin.fieldsets += (("Plan", {"fields": ("plan",)}),)
 
 
-admin.site.register(Plan)
+class PlanAdmin(admin.ModelAdmin):
+    filter_horizontal = ["presets"]
+
+
+admin.site.register(Plan, PlanAdmin)
 admin.site.register(User, UserAdmin)
