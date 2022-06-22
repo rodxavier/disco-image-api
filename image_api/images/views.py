@@ -1,4 +1,6 @@
-from django.http import Http404
+from io import BytesIO
+
+from django.http import FileResponse, Http404
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
 
@@ -25,3 +27,15 @@ class ImageUrlView(View, SingleObjectMixin):
         if obj.expired:
             raise Http404("Link is expired.")
         return obj
+
+    def get(self, request, *args, **kwargs):
+        # TODO: Implement caching
+        obj = self.get_object()
+        img = obj.apply_preset()
+        img_data = BytesIO()
+        img.save(img_data, obj.image.filetype)
+        img_data.seek(0)
+        response = FileResponse(
+            img_data, filename=f"{obj.preset.name}_{obj.image.filename}"
+        )
+        return response
