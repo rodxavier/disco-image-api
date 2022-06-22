@@ -62,10 +62,13 @@ class TestUploadedImageViewSet(TestCase):
     fixtures = ["fixtures/initial_data.json"]
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", plan=Plan.objects.get(name="Basic")
+        self.basic_user = User.objects.create_user(
+            username="basic_user", plan=Plan.objects.get(name="Basic")
         )
-        self.client.force_login(self.user)
+        self.enterprise_user = User.objects.create_user(
+            username="enterprise_user", plan=Plan.objects.get(name="Enterprise")
+        )
+        self.client.force_login(self.basic_user)
 
     def test_user_can_upload_image(self):
         res = self._upload_file()
@@ -78,13 +81,27 @@ class TestUploadedImageViewSet(TestCase):
         res = self.client.get(reverse("images-list"))
         self.assertEqual(len(res.json()), 2)
 
+    def test_basic_user_cant_provide_expire(self):
+        res = self._upload_file(extra_request_kwargs={"expire": 300})
+        self.assertEqual(res.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(
+            res.json()["expire"][0], "User is not allowed to create expiring links"
+        )
+
+    def test_enterprise_user_can_provide_expire(self):
+        self.client.force_login(self.enterprise_user)
+        res = self._upload_file(extra_request_kwargs={"expire": 300})
+        self.assertEqual(res.status_code, HTTPStatus.CREATED)
+
     @patch("rest_framework.throttling.UserRateThrottle.get_rate", return_value="1/day")
     def test_user_throttling_works(self, _mock_throttle):
         self._upload_file()
         res = self._upload_file()
         self.assertEqual(res.status_code, HTTPStatus.TOO_MANY_REQUESTS)
 
-    def _upload_file(self, filepath=image_path):
+    def _upload_file(self, filepath=image_path, extra_request_kwargs={}):
         with open(filepath, "rb") as img:
-            res = self.client.post(reverse("images-list"), {"image": img})
+            res = self.client.post(
+                reverse("images-list"), {"image": img, **extra_request_kwargs}
+            )
         return res
