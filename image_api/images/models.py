@@ -1,5 +1,7 @@
+import mimetypes
 import uuid
 from datetime import timedelta
+from pathlib import Path
 
 from django.conf import settings
 from django.db import models
@@ -31,6 +33,16 @@ class UploadedImage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def filename(self):
+        return Path(self.image.path).name
+
+    @property
+    def filetype(self):
+        mimetype, _ = mimetypes.guess_type(self.filename)
+        _, filetype = mimetype.split("/")
+        return filetype
+
 
 class ImageUrl(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -53,3 +65,6 @@ class ImageUrl(models.Model):
 
     def generate_url(self, request=None):
         return ""
+
+    def apply_preset(self):
+        pass
