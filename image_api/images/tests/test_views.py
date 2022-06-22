@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from pathlib import Path
+from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http.response import FileResponse
@@ -7,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from images.models import ImagePreset, ImageUrl, UploadedImage
-from accounts.models import User
+from accounts.models import Plan, User
 
 
 image_path = Path(__file__).parent / "files" / "sample_image.png"
@@ -55,3 +56,35 @@ class TestImageUrlView(TestCase):
         url = reverse("image-url-view", args=[image_url.id])
         res = self.client.get(url)
         self.assertEqual(res.status_code, HTTPStatus.NOT_FOUND)
+
+
+class TestUploadedImageViewSet(TestCase):
+    fixtures = ["fixtures/initial_data.json"]
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser", plan=Plan.objects.get(name="Basic")
+        )
+        self.client.force_login(self.user)
+
+    def test_user_can_upload_image(self):
+        res = self._upload_file()
+        self.assertEqual(res.status_code, HTTPStatus.CREATED)
+        self.assertIn("image_links", res.json())
+
+    def test_user_can_list_images(self):
+        self._upload_file()
+        self._upload_file()
+        res = self.client.get(reverse("images-list"))
+        self.assertEqual(len(res.json()), 2)
+
+    @patch("rest_framework.throttling.UserRateThrottle.get_rate", return_value="1/day")
+    def test_user_throttling_works(self, _mock_throttle):
+        self._upload_file()
+        res = self._upload_file()
+        self.assertEqual(res.status_code, HTTPStatus.TOO_MANY_REQUESTS)
+
+    def _upload_file(self, filepath=image_path):
+        with open(filepath, "rb") as img:
+            res = self.client.post(reverse("images-list"), {"image": img})
+        return res
