@@ -50,3 +50,6 @@ class ImageUrl(models.Model):
         if self.expire is None:
             return False
         return timezone.now() > (self.created_at + timedelta(seconds=self.expire))
+
+    def generate_url(self, request=None):
+        return ""

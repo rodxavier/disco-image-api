@@ -6,7 +6,11 @@ from django.urls import include, path
 
 from rest_framework import routers
 
+from images.views import UploadedImageViewSet
+
+
 router = routers.DefaultRouter()
+router.register(r"images", UploadedImageViewSet, basename="images")
 
 urlpatterns = [
     path("", include(router.urls)),
