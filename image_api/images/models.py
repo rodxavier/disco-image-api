@@ -8,6 +8,8 @@ from django.db import models
 from django.urls import reverse_lazy
 from django.utils import timezone
 
+from PIL import Image
+
 
 class ImagePreset(models.Model):
     name = models.CharField(max_length=40)
@@ -71,4 +73,17 @@ class ImageUrl(models.Model):
         return url
 
     def apply_preset(self):
-        pass
+        img = Image.open(self.image.image.path)
+        width, height = img.size
+        new_height = self.preset.height
+        new_width = self.preset.width
+        if not new_height and not new_width:
+            return img
+
+        if new_height:
+            new_width = new_height * width / height
+        elif new_width:
+            new_height = new_width * height / width
+
+        img = img.resize((new_width, new_height), Image.ANTIALIAS)
+        return img
