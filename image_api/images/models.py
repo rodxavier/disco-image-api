@@ -19,6 +19,10 @@ def user_directory_path(instance, filename):
 
 class UploadedImage(models.Model):
     image = models.ImageField(upload_to=user_directory_path)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="uploaded_images",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
