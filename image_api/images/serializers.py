@@ -17,7 +17,7 @@ class UploadedImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedImage
-        fields = ["image", "image_links", "expire", "user"]
+        fields = ["id", "image", "image_links", "expire", "user"]
 
     @transaction.atomic
     def create(self, validated_data):
