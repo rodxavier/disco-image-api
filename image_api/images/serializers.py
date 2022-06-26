@@ -26,8 +26,12 @@ class UploadedImageSerializer(serializers.ModelSerializer):
 
         user = self.context["request"].user
         presets = user.plan.presets.all()
-        for preset in presets:
-            ImageUrl.objects.create(preset=preset, image=uploaded_image, expire=expire)
+        ImageUrl.objects.bulk_create(
+            [
+                ImageUrl(preset=preset, image=uploaded_image, expire=expire)
+                for preset in presets
+            ]
+        )
         return uploaded_image
 
     def validate_expire(self, value):
