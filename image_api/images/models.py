@@ -8,16 +8,15 @@ from django.db import models
 from django.utils import timezone
 
 from rest_framework.reverse import reverse
-
 from PIL import Image
 
+from common.mixins import TimestampedModel
 
-class ImagePreset(models.Model):
+
+class ImagePreset(TimestampedModel):
     name = models.CharField(max_length=40)
     height = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     width = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -27,15 +26,13 @@ def user_directory_path(instance, filename):
     return f"{instance.user.id}/{filename}"
 
 
-class UploadedImage(models.Model):
+class UploadedImage(TimestampedModel):
     image = models.ImageField(upload_to=user_directory_path)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="uploaded_images",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def filename(self):
@@ -48,12 +45,11 @@ class UploadedImage(models.Model):
         return filetype
 
 
-class ImageUrl(models.Model):
+class ImageUrl(TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     preset = models.ForeignKey("ImagePreset", on_delete=models.CASCADE)
     image = models.ForeignKey("UploadedImage", on_delete=models.CASCADE)
     expire = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = [("preset", "image")]
