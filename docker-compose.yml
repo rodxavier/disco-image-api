@@ -1,5 +1,12 @@
 version: "3.9"
 services:
+  cache:
+    image: redis:alpine
+    ports:
+      - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+    volumes:
+      - ./redis_data:/data
+
   db:
     image: postgres:alpine
     ports:
@@ -31,6 +38,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-image_api_db}
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - REDIS_HOST=${REDIS_HOST:-cache}
+      - REDIS_PORT=${REDIS_PORT:-6379}
       - APP_PORT=${APP_PORT:-8000}
     depends_on:
       db:

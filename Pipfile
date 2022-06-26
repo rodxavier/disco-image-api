@@ -9,6 +9,7 @@ djangorestframework = "*"
 environs = "*"
 psycopg2 = "*"
 pillow = "*"
+django-redis = "*"
 
 [dev-packages]
 black = "*"

@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 db_data/
+redis_data/
 media/
 static/
 .DS_Store
