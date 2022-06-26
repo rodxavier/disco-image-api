@@ -39,6 +39,6 @@ The ImagePreset model represents a size configuration for an image. You can defi
 - If height and width are present, the preset will resize the image to the specific dimensions
 - If either height or width is present, the preset will resize the image to the specific dimension present while maintaining the aspect ratio of the image
 
-## TODOs
+### Possible improvements
 
-- Implement caching mechanism in ImageUrlView
+- Instead of using a redis-based caching solution, we can push the image into a CDN to further lessen the load on the server when images are being accessed. We can take advantage of available cache control headers to allow us to push even expiring ImageUrls to the CDN.
