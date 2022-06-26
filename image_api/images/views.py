@@ -1,5 +1,7 @@
+import logging
 from io import BytesIO
 
+from django.core.cache import cache
 from django.http import FileResponse, Http404
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
@@ -29,12 +31,18 @@ class ImageUrlView(View, SingleObjectMixin):
         return obj
 
     def get(self, request, *args, **kwargs):
-        # TODO: Implement caching
         obj = self.get_object()
-        img = obj.apply_preset()
-        img_data = BytesIO()
-        img.save(img_data, obj.image.filetype)
-        img_data.seek(0)
+        cache_key = obj.id
+        img_data = cache.get(cache_key)
+        if img_data:
+            logging.debug("Cache hit")
+        else:
+            logging.debug("Cache miss")
+            img = obj.apply_preset()
+            img_data = BytesIO()
+            img.save(img_data, obj.image.filetype)
+            img_data.seek(0)
+            cache.set(cache_key, img_data, obj.expire_in)
         response = FileResponse(
             img_data, filename=f"{obj.preset.name}_{obj.image.filename}"
         )

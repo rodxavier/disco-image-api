@@ -166,7 +166,9 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
             "IGNORE_EXCEPTIONS": True,
+            "MAX_ENTRIES": 10000,  # This is just an example
         },
         "KEY_PREFIX": "cache",
+        "TIMEOUT": None,
     }
 }

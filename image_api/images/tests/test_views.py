@@ -49,6 +49,19 @@ class TestImageUrlView(TestCase):
         self.assertEqual(res.status_code, HTTPStatus.OK)
         self.assertIsInstance(res, FileResponse)
 
+    def test_caching_works(self):
+        image_url = ImageUrl.objects.create(preset=self.preset, image=self.image)
+        url = reverse("image-url-view", args=[image_url.id])
+        with self.assertLogs(level="DEBUG") as cm:
+            res = self.client.get(url)
+            logs = "".join(cm.output)
+            self.assertIn("Cache miss", logs)
+
+        with self.assertLogs(level="DEBUG") as cm:
+            res = self.client.get(url)
+            logs = "".join(cm.output)
+            self.assertIn("Cache hit", logs)
+
     def test_expired_image_url_returns_404(self):
         image_url = ImageUrl.objects.create(
             preset=self.preset, image=self.image, expire=0

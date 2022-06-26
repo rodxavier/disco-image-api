@@ -63,6 +63,15 @@ class ImageUrl(TimestampedModel):
             return False
         return timezone.now() > (self.created_at + timedelta(seconds=self.expire))
 
+    @property
+    def expire_in(self):
+        if self.expire is None:
+            return None
+        expire_in = int(
+            (self.created_at + timedelta(seconds=self.expire)) - timezone.now()
+        )
+        return max(0, expire_in)
+
     def generate_url(self, request=None):
         return reverse("image-url-view", args=[self.id], request=request)
 
