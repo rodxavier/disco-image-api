@@ -51,9 +51,6 @@ class ImageUrl(TimestampedModel):
     image = models.ForeignKey("UploadedImage", on_delete=models.CASCADE)
     expire = models.IntegerField(blank=True, null=True)
 
-    class Meta:
-        unique_together = [("preset", "image")]
-
     def __str__(self):
         return str(self.id)
 
