@@ -64,9 +64,9 @@ class ImageUrl(TimestampedModel):
     def expire_in(self):
         if self.expire is None:
             return None
-        expire_in = int(
+        expire_in = (
             (self.created_at + timedelta(seconds=self.expire)) - timezone.now()
-        )
+        ).seconds
         return max(0, expire_in)
 
     def generate_url(self, request=None):
