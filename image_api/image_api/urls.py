@@ -3,11 +3,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
-
-from rest_framework import routers
-
 from images.views import ImageUrlView, UploadedImageViewSet
-
+from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r"images", UploadedImageViewSet, basename="images")

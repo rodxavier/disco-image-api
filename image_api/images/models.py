@@ -3,14 +3,12 @@ import uuid
 from datetime import timedelta
 from pathlib import Path
 
+from common.mixins import TimestampedModel
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-
-from rest_framework.reverse import reverse
 from PIL import Image
-
-from common.mixins import TimestampedModel
+from rest_framework.reverse import reverse
 
 
 class ImagePreset(TimestampedModel):

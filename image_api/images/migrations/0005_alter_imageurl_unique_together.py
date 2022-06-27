@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('images', '0004_imageurl_updated_at'),
+        ("images", "0004_imageurl_updated_at"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='imageurl',
+            name="imageurl",
             unique_together=set(),
         ),
     ]

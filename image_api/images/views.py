@@ -5,7 +5,6 @@ from django.core.cache import cache
 from django.http import FileResponse, Http404
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
-
 from rest_framework import viewsets
 
 from .models import ImageUrl, UploadedImage

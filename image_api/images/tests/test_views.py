@@ -3,14 +3,12 @@ from http import HTTPStatus
 from pathlib import Path
 from unittest.mock import patch
 
+from accounts.models import Plan, User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http.response import FileResponse
 from django.test import TestCase
 from django.urls import reverse
-
 from images.models import ImagePreset, ImageUrl, UploadedImage
-from accounts.models import Plan, User
-
 
 image_path = Path(__file__).parent / "files" / "sample_image.png"
 sample_image = SimpleUploadedFile(

@@ -1,7 +1,6 @@
+from common.mixins import TimestampedModel
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-from common.mixins import TimestampedModel
 
 
 class Plan(TimestampedModel):
