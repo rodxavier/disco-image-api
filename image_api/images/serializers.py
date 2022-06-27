@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db import transaction
 from rest_framework import serializers
 
@@ -23,7 +25,17 @@ class UploadedImageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         expire = validated_data.pop("expire", None)
         uploaded_image = UploadedImage.objects.create(**validated_data)
+        self._create_image_urls(uploaded_image, expire)
+        return uploaded_image
 
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        expire = validated_data.pop("expire", None)
+        instance = super().update(instance, validated_data)
+        self._create_image_urls(instance, expire)
+        return instance
+
+    def _create_image_urls(self, uploaded_image, expire):
         user = self.context["request"].user
         presets = user.plan.presets.all()
         ImageUrl.objects.bulk_create(
@@ -32,7 +44,6 @@ class UploadedImageSerializer(serializers.ModelSerializer):
                 for preset in presets
             ]
         )
-        return uploaded_image
 
     def validate_expire(self, value):
         user = self.context["request"].user
@@ -44,6 +55,13 @@ class UploadedImageSerializer(serializers.ModelSerializer):
 
     def get_image_links(self, obj):
         urls = obj.imageurl_set.all()
-        return {
-            url.preset.name: url.generate_url(self.context["request"]) for url in urls
-        }
+        image_links = defaultdict(list)
+        for url in urls:
+            image_links[url.preset.name].append(
+                {
+                    "url": url.generate_url(self.context["request"]),
+                    "expired": url.expired,
+                    "expire_at": url.expire_at,
+                }
+            )
+        return image_links

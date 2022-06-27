@@ -1,3 +1,4 @@
+import time
 from http import HTTPStatus
 from pathlib import Path
 from unittest.mock import patch
@@ -61,6 +62,25 @@ class TestImageUrlView(TestCase):
             res = self.client.get(url)
             logs = "".join(cm.output)
             self.assertIn("Cache hit", logs)
+
+    def test_returns_404_when_cache_expires(self):
+        image_url = ImageUrl.objects.create(
+            preset=self.preset, image=self.image, expire=3
+        )
+        url = reverse("image-url-view", args=[image_url.id])
+        with self.assertLogs(level="DEBUG") as cm:
+            res = self.client.get(url)
+            logs = "".join(cm.output)
+            self.assertIn("Cache miss", logs)
+
+        with self.assertLogs(level="DEBUG") as cm:
+            res = self.client.get(url)
+            logs = "".join(cm.output)
+            self.assertIn("Cache hit", logs)
+
+        time.sleep(3)
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, HTTPStatus.NOT_FOUND)
 
     def test_expired_image_url_returns_404(self):
         image_url = ImageUrl.objects.create(
