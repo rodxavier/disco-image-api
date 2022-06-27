@@ -106,6 +106,18 @@ class TestUploadedImageViewSet(TestCase):
         res = self.client.get(reverse("images-list"))
         self.assertEqual(len(res.json()), 2)
 
+    def test_user_can_create_more_image_urls(self):
+        self.client.force_login(self.enterprise_user)
+        res = self._upload_file()
+        instance_id = res.json()["id"]
+        res = self.client.patch(
+            reverse("images-detail", args=[instance_id]),
+            {"expire": 300},
+            content_type="application/json",
+        )
+        for image_links in res.json()["image_links"].values():
+            self.assertEqual(len(image_links), 2)
+
     def test_basic_user_cant_provide_expire(self):
         res = self._upload_file(extra_request_kwargs={"expire": 300})
         self.assertEqual(res.status_code, HTTPStatus.BAD_REQUEST)
