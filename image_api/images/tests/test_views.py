@@ -53,34 +53,26 @@ class TestImageUrlView(TestCase):
     def test_caching_works(self):
         image_url = ImageUrl.objects.create(preset=self.preset, image=self.image)
         url = reverse("image-url-view", args=[image_url.id])
-        with self.assertLogs(level="DEBUG") as cm:
-            res = self.client.get(url)
-            logs = "".join(cm.output)
-            self.assertIn("Cache miss", logs)
-
-        with self.assertLogs(level="DEBUG") as cm:
-            res = self.client.get(url)
-            logs = "".join(cm.output)
-            self.assertIn("Cache hit", logs)
+        self._test_log_message(url, "Cache miss")
+        self._test_log_message(url, "Cache hit")
 
     def test_returns_404_when_cache_expires(self):
         image_url = ImageUrl.objects.create(
             preset=self.preset, image=self.image, expire=3
         )
         url = reverse("image-url-view", args=[image_url.id])
-        with self.assertLogs(level="DEBUG") as cm:
-            res = self.client.get(url)
-            logs = "".join(cm.output)
-            self.assertIn("Cache miss", logs)
-
-        with self.assertLogs(level="DEBUG") as cm:
-            res = self.client.get(url)
-            logs = "".join(cm.output)
-            self.assertIn("Cache hit", logs)
+        self._test_log_message(url, "Cache miss")
+        self._test_log_message(url, "Cache hit")
 
         time.sleep(3)
         res = self.client.get(url)
         self.assertEqual(res.status_code, HTTPStatus.NOT_FOUND)
+
+    def _test_log_message(self, url, msg):
+        with self.assertLogs(level="DEBUG") as cm:
+            res = self.client.get(url)
+            logs = "".join(cm.output)
+            self.assertIn(msg, logs)
 
     def test_expired_image_url_returns_404(self):
         image_url = ImageUrl.objects.create(
