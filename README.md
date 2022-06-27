@@ -16,6 +16,11 @@ This repo contains a simple DRF-based image API
 
 `docker compose run "python manage.py test"`
 
+## Adding a user
+
+1. Create a user via the Django admin interface.
+2. Once created, while on the edit user page, assign a plan to a user.
+
 ## Creating a new Plan
 
 1. Visit the django admin. `http://localhost:8000/admin`
