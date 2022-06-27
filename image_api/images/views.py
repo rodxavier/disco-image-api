@@ -9,7 +9,7 @@ from django.views.generic.detail import SingleObjectMixin
 from rest_framework import viewsets
 
 from .models import ImageUrl, UploadedImage
-from .serializers import UploadedImageSerializer
+from .serializers import ExpireOnlySerializer, UploadedImageSerializer
 
 
 class UploadedImageViewSet(viewsets.ModelViewSet):
@@ -18,6 +18,11 @@ class UploadedImageViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return UploadedImage.objects.filter(user=user)
+
+    def get_serializer_class(self):
+        if self.action in ["update", "partial_update"]:
+            return ExpireOnlySerializer
+        return super().get_serializer_class()
 
 
 class ImageUrlView(View, SingleObjectMixin):

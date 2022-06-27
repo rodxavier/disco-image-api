@@ -65,3 +65,11 @@ class UploadedImageSerializer(serializers.ModelSerializer):
                 }
             )
         return image_links
+
+
+class ExpireOnlySerializer(UploadedImageSerializer):
+    image = None
+
+    class Meta:
+        model = UploadedImage
+        fields = ["id", "image_links", "expire", "user"]
