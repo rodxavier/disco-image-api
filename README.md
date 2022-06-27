@@ -6,8 +6,9 @@ This repo contains a simple DRF-based image API
 
 ## Setup
 
-1. Run `docker compose up`
-2. Visit `http://localhost:8000`
+1. Build docker image. `docker compose build`.
+2. Start the application. Run `docker compose up`.
+3. Visit `http://localhost:8000`
 
 `Note`: An admin account was already created with the credentials `admin/password`.
 
